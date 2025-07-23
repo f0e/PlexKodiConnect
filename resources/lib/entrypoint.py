@@ -113,10 +113,10 @@ def show_main_menu(content_type=None):
     # Get nodes from the window props
     totalnodes = int(utils.window('Plex.nodes.total') or 0)
     # Plex Hub
-    path = 'plugin://%s?mode=hub' % v.ADDON_ID
+    hub_path = 'plugin://%s?mode=hub' % v.ADDON_ID
     if content_type:
-        path += '&content_type=%s' % content_type
-    directory_item('Plex Hub', path)
+        hub_path += '&content_type=%s' % content_type
+    directory_item('Plex Hub', hub_path)
     # Entries for sections, if the content type matches
     for i in range(totalnodes):
         path = utils.window('Plex.nodes.%s.index' % i)
@@ -124,6 +124,7 @@ def show_main_menu(content_type=None):
             continue
         label = utils.window('Plex.nodes.%s.title' % i)
         node_type = utils.window('Plex.nodes.%s.type' % i)
+        section_id = utils.window('Plex.nodes.%s.id' % i)
         # because we do not use seperate entrypoints for each content type,
         # we need to figure out which items to show in each listing. for
         # now we just only show picture nodes in the picture library video
@@ -138,6 +139,9 @@ def show_main_menu(content_type=None):
                            v.CONTENT_TYPE_SHOW,
                            v.CONTENT_TYPE_MUSICVIDEO) and content_type == 'video':
             directory_item(label, path)
+
+            section_hub_path = hub_path + '&section_id=%s' % section_id
+            directory_item('%s Hub' % label, section_hub_path)
         elif content_type is None:
             # To let the user pick this node as a WIDGET (content_type is None)
             # Should only be called if the user selects widgets
@@ -404,7 +408,7 @@ def playlists(content_type):
     show_listing(xml)
 
 
-def hub(content_type):
+def hub(content_type, section_id):
     """
     Plus hub endpoint pms:port/hubs. Need to separate Kodi types with
     content_type:
@@ -414,7 +418,10 @@ def hub(content_type):
     LOG.debug('Showing Plex Hub entries for %s', content_type)
     _wait_for_auth()
     app.init(entrypoint=True)
-    xml = PF.get_plex_hub()
+    if section_id:
+        xml = PF.get_plex_library_hub(section_id)
+    else:
+        xml = PF.get_plex_hub()
     try:
         xml[0].attrib
     except (TypeError, IndexError, AttributeError):

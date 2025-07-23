@@ -785,6 +785,10 @@ def get_plex_hub():
     return DU().downloadUrl('{server}/hubs')
 
 
+def get_plex_library_hub(section_id):
+    return DU().downloadUrl('{server}/hubs/sections/%s' % section_id)
+
+
 def get_plex_sections():
     """
     Returns all Plex sections (libraries) of the PMS as an etree xml

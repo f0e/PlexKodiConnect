@@ -113,7 +113,7 @@ def triage(mode, params, path, arguments, itemid):
         elif mode == 'playlists':
             entrypoint.playlists(params.get('content_type'))
         elif mode == 'hub':
-            entrypoint.hub(params.get('content_type'))
+            entrypoint.hub(params.get('content_type'), params.get('section_id'))
         elif mode == 'select-libraries':
             LOG.info('User requested to select Plex libraries')
             transfer.plex_command('select-libraries')
